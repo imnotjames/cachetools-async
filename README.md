@@ -1,8 +1,8 @@
 # cachetools_async
 
-[![Latest pypi version](https://img.shields.io/pypi/v/cachetools_async)](https://pypi.org/project/cachetools_async/)
-[![Test Coverage](https://img.shields.io/codecov/c/github/imnotjames/cachetools_async/master.svg)](https://codecov.io/gh/imnotjames/cachetools_async)
-[![License](https://img.shields.io/github/license/imnotjames/cachetools_async)](./LICENSE)
+[![Latest pypi version](https://img.shields.io/pypi/v/cachetools-async)](https://pypi.org/project/cachetools-async/)
+[![Test Coverage](https://img.shields.io/codecov/c/github/imnotjames/cachetools-async/master.svg)](https://codecov.io/gh/imnotjames/cachetools-async)
+[![License](https://img.shields.io/github/license/imnotjames/cachetools-async)](./LICENSE)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 
