@@ -68,6 +68,23 @@ class TestCachedDict:
 
         assert await decorated_fn() == "example"
 
+    async def test_cache_clear_evicts_everything(self):
+        mock = AsyncMock()
+
+        mock.return_value = "bar"
+        decorated_fn = cachetools_async.cached({})(mock)
+
+        await decorated_fn("foo")
+        await decorated_fn("foo")
+
+        decorated_fn.cache_clear()
+
+        actual = await decorated_fn("foo")
+
+        mock.assert_has_calls([call("foo"), call("foo")])
+        assert len(mock.mock_calls) == 2
+        assert actual == "bar"
+
 
 class TestCachedNone:
     async def test_params_are_passed_through(self):
