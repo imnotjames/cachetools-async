@@ -1,14 +1,20 @@
-from collections.abc import Mapping
 from functools import update_wrapper
-from typing import Callable, Awaitable, Union, Any
+from typing import (
+    TypeVar,
+    Callable,
+    Awaitable,
+    Any,
+    MutableMapping,
+    Optional,
+    ContextManager,
+)
 from inspect import iscoroutinefunction
 from asyncio import get_event_loop, shield, Future, Task
 
-from cachetools import Cache
 from cachetools.keys import hashkey, methodkey
 
 
-PossibleCache = Union[Cache, Mapping, None]
+_KT = TypeVar("_KT")
 
 
 def apply_task_result_to_future(task: Task, future: Future):
@@ -23,7 +29,12 @@ def apply_task_result_to_future(task: Task, future: Future):
     future.set_result(task.result())
 
 
-def cached(cache: PossibleCache, key=hashkey, lock=None, info=False):
+def cached(
+    cache: Optional[MutableMapping[_KT, Future]],
+    key: Callable[..., _KT] = hashkey,
+    lock: Optional[ContextManager[Any]] = None,
+    info: bool = False,
+):
     """
     Decorator to wrap a function with a memoizing callable that saves
     results in a cache.
@@ -97,7 +108,10 @@ def cached(cache: PossibleCache, key=hashkey, lock=None, info=False):
     return decorator
 
 
-def cachedmethod(cache: Callable[[Any], PossibleCache], key=methodkey):
+def cachedmethod(
+    cache: Callable[[Any], Optional[MutableMapping[_KT, Future]]],
+    key: Callable[[Any], _KT] = methodkey,
+):
     """
     Decorator to wrap a class or instance method with a memoizing
     callable that saves results in a cache.
