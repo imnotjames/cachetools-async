@@ -9,6 +9,31 @@ async def identity(*args, **kwargs):
     return args + tuple(kwargs.items())
 
 
+def test_cached_fails_unimplemented_features():
+    with pytest.raises(NotImplementedError, match="does not support `info`"):
+        cachetools_async.cached(None, info=True)
+
+    with pytest.raises(NotImplementedError, match="does not support `lock`"):
+        # Not quite an actual lock but close enough for the test
+        cachetools_async.cached(None, lock=True)
+
+
+def test_cached_raises_type_error_without_coroutine():
+    def simple():
+        pass
+
+    decorator = cachetools_async.cached(None)
+
+    with pytest.raises(TypeError, match="Expected Coroutine"):
+        decorator(simple)
+
+    with pytest.raises(TypeError, match="Expected Coroutine"):
+        decorator(10)
+
+    with pytest.raises(TypeError, match="Expected Coroutine"):
+        decorator({})
+
+
 class TestCachedDict:
     async def test_params_are_passed_through(self):
         decorated_fn = cachetools_async.cached({})(identity)
