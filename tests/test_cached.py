@@ -1,5 +1,5 @@
 import asyncio
-from unittest.mock import AsyncMock, call
+from unittest.mock import AsyncMock, MagicMock, call
 
 import cachetools_async
 import pytest
@@ -32,6 +32,29 @@ def test_cached_raises_type_error_without_coroutine():
 
     with pytest.raises(TypeError, match="Expected Coroutine"):
         decorator({})
+
+
+async def test_cached_full_cache_never_caches():
+    # Set up a cache that's always empty and never empty
+    cache_mock = MagicMock()
+    cache_mock.__getitem__.return_value = None
+    cache_mock.__setitem__.side_effect = ValueError()
+
+    mock = AsyncMock()
+    mock.return_value = "bar"
+
+    decorated_fn = cachetools_async.cached(cache_mock)(mock)
+
+    actual = await asyncio.gather(
+        *(
+            decorated_fn("foo")
+            for _ in range(5)
+        ),
+    )
+
+    mock.assert_has_calls([call("foo")] * 5)
+    assert len(mock.mock_calls) == 5
+    assert actual == ["bar"] * 5
 
 
 class TestCachedDict:
