@@ -1,6 +1,6 @@
 from collections.abc import Mapping
 from functools import update_wrapper
-from typing import Callable, Awaitable, Union
+from typing import Callable, Awaitable, Union, Any
 from inspect import iscoroutinefunction
 from asyncio import get_event_loop, shield, Future, Task
 
@@ -97,7 +97,7 @@ def cached(cache: PossibleCache, key=hashkey, lock=None, info=False):
     return decorator
 
 
-def cachedmethod(cache: Callable[..., PossibleCache], key=methodkey):
+def cachedmethod(cache: Callable[[Any], PossibleCache], key=methodkey):
     """
     Decorator to wrap a class or instance method with a memoizing
     callable that saves results in a cache.
