@@ -1,6 +1,6 @@
-import collections
+from collections.abc import Mapping
 from functools import update_wrapper
-from typing import Callable, Awaitable
+from typing import Callable, Awaitable, Union
 from inspect import iscoroutinefunction
 from asyncio import get_event_loop, shield, Future, Task
 
@@ -8,7 +8,7 @@ from cachetools import Cache
 from cachetools.keys import hashkey, methodkey
 
 
-PossibleCache = Cache | collections.abc.Mapping | None
+PossibleCache = Union[Cache, Mapping, None]
 
 
 def apply_task_result_to_future(task: Task, future: Future):
