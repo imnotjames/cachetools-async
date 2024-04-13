@@ -86,6 +86,22 @@ class TestCachedDict:
         assert len(mock.mock_calls) == 2
         assert actual == ["bar"] * 10
 
+    async def test_cancelled_calls_are_propagated(self):
+        mock = AsyncMock()
+
+        mock.return_value = "bar"
+        decorated_fn = cachetools_async.cached({})(mock)
+
+        call_future = decorated_fn("foo")
+
+        # Get the task we created here
+        all_tasks = asyncio.all_tasks()
+        task = next(iter(all_tasks))
+        task.cancel()
+
+        with pytest.raises(asyncio.CancelledError):
+            await call_future
+
     async def test_completed_future(self):
         mock = AsyncMock()
 
