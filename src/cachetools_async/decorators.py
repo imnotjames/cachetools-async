@@ -111,11 +111,15 @@ def cached(
 def cachedmethod(
     cache: Callable[[Any], Optional[MutableMapping[_KT, Future]]],
     key: Callable[[Any], _KT] = methodkey,
+    lock: Optional[Callable[[Any], ContextManager[Any]]] = None,
 ):
     """
     Decorator to wrap a class or instance method with a memoizing
     callable that saves results in a cache.
     """
+
+    if lock is not None:
+        raise NotImplementedError("cachetools_async does not support `lock`")
 
     def decorator(method: Callable[..., Awaitable]):
         if not iscoroutinefunction(method):
