@@ -8,8 +8,6 @@ import pytest
 async def identity(*args, **kwargs):
     return args + tuple(kwargs.items())
 
-mock = AsyncMock()
-
 
 class TestCachedDict:
     async def test_params_are_passed_through(self):
@@ -20,6 +18,8 @@ class TestCachedDict:
         assert await decorated_fn("foo", bar="baz") == ("foo", ("bar", "baz"))
 
     async def test_multiple_calls(self):
+        mock = AsyncMock()
+
         mock.return_value = "bar"
         decorated_fn = cachetools_async.cached({})(mock)
 
@@ -38,7 +38,24 @@ class TestCachedDict:
         assert len(mock.mock_calls) == 2
         assert actual == ["bar"] * 10
 
+    async def test_completed_future(self):
+        mock = AsyncMock()
+
+        mock.return_value = "bar"
+        decorated_fn = cachetools_async.cached({})(mock)
+
+        await decorated_fn("foo")
+        await decorated_fn("bar")
+
+        actual = await decorated_fn("foo")
+
+        mock.assert_has_calls([call("foo"), call("bar")])
+        assert len(mock.mock_calls) == 2
+        assert actual == "bar"
+
     async def test_does_not_cache_exceptions(self):
+        mock = AsyncMock()
+
         mock.side_effect = [
             TypeError(),
             "example",
