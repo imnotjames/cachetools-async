@@ -1,4 +1,5 @@
 import asyncio
+import contextlib
 from unittest.mock import AsyncMock, MagicMock, call
 
 import cachetools_async
@@ -13,9 +14,13 @@ def test_cached_fails_unimplemented_features():
     with pytest.raises(NotImplementedError, match="does not support `info`"):
         cachetools_async.cached(None, info=True)
 
+    # Not quite an actual lock but close enough for the test
+    class FakeLock(contextlib.AbstractContextManager):
+        def __exit__(self, __exc_type, __exc_value, __traceback):
+            pass
+
     with pytest.raises(NotImplementedError, match="does not support `lock`"):
-        # Not quite an actual lock but close enough for the test
-        cachetools_async.cached(None, lock=True)
+        cachetools_async.cached(None, lock=FakeLock)
 
 
 def test_cached_raises_type_error_without_coroutine():
