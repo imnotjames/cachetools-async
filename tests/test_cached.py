@@ -51,10 +51,7 @@ async def test_cached_full_cache_never_caches():
     decorated_fn = cachetools_async.cached(cache_mock)(mock)
 
     actual = await asyncio.gather(
-        *(
-            decorated_fn("foo")
-            for _ in range(5)
-        ),
+        *(decorated_fn("foo") for _ in range(5)),
     )
 
     mock.assert_has_calls([call("foo")] * 5)
@@ -77,14 +74,8 @@ class TestCachedDict:
         decorated_fn = cachetools_async.cached({})(mock)
 
         actual = await asyncio.gather(
-            *(
-                decorated_fn("foo")
-                for _ in range(5)
-            ),
-            *(
-                decorated_fn("bar")
-                for _ in range(5)
-            )
+            *(decorated_fn("foo") for _ in range(5)),
+            *(decorated_fn("bar") for _ in range(5)),
         )
 
         mock.assert_has_calls([call("foo"), call("bar")])

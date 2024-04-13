@@ -8,7 +8,7 @@ import pytest
 
 class ExampleClass:
     async def identity(self, *args, **kwargs):
-        return (self, ) + args + tuple(kwargs.items())
+        return (self,) + args + tuple(kwargs.items())
 
     async def cancel_self(self):
         task = asyncio.current_task()
@@ -51,10 +51,7 @@ async def test_cachedmethod_full_cache_never_caches():
     decorated_fn = cachetools_async.cachedmethod(cache_resolver)(mock.func)
 
     actual = await asyncio.gather(
-        *(
-            decorated_fn(mock, "foo")
-            for _ in range(5)
-        ),
+        *(decorated_fn(mock, "foo") for _ in range(5)),
     )
 
     mock.func.assert_has_calls([call(mock, "foo")] * 5)
@@ -70,13 +67,25 @@ class TestCachedmethodDict:
         yield mock_resolver
 
     async def test_params_are_passed_through(self, mock_resolver):
-        decorated_fn = cachetools_async.cachedmethod(mock_resolver)(ExampleClass.identity)
+        decorated_fn = cachetools_async.cachedmethod(mock_resolver)(
+            ExampleClass.identity
+        )
 
         example = ExampleClass()
 
-        assert await decorated_fn(example, 0) == (example, 0,)
-        assert await decorated_fn(example, "foo") == (example, "foo",)
-        assert await decorated_fn(example, "foo", bar="baz") == (example, "foo", ("bar", "baz"))
+        assert await decorated_fn(example, 0) == (
+            example,
+            0,
+        )
+        assert await decorated_fn(example, "foo") == (
+            example,
+            "foo",
+        )
+        assert await decorated_fn(example, "foo", bar="baz") == (
+            example,
+            "foo",
+            ("bar", "baz"),
+        )
 
     async def test_multiple_calls(self, mock_resolver):
         mock = AsyncMock()
@@ -85,14 +94,8 @@ class TestCachedmethodDict:
         decorated_fn = cachetools_async.cachedmethod(mock_resolver)(mock.func)
 
         actual = await asyncio.gather(
-            *(
-                decorated_fn(mock, "foo")
-                for _ in range(5)
-            ),
-            *(
-                decorated_fn(mock, "bar")
-                for _ in range(5)
-            )
+            *(decorated_fn(mock, "foo") for _ in range(5)),
+            *(decorated_fn(mock, "bar") for _ in range(5)),
         )
 
         mock.func.assert_has_calls([call(mock, "foo"), call(mock, "bar")])
@@ -100,7 +103,9 @@ class TestCachedmethodDict:
         assert actual == ["bar"] * 10
 
     async def test_cancelled_calls_are_propagated(self, mock_resolver):
-        decorated_fn = cachetools_async.cachedmethod(mock_resolver)(ExampleClass.cancel_self)
+        decorated_fn = cachetools_async.cachedmethod(mock_resolver)(
+            ExampleClass.cancel_self
+        )
 
         call_future = decorated_fn(ExampleClass())
 
@@ -155,7 +160,9 @@ class TestCachedmethodDict:
         assert actual == "bar"
 
     async def test_cache_clear_passes_to_resolver(self, mock_resolver):
-        decorated_fn = cachetools_async.cachedmethod(mock_resolver)(ExampleClass.identity)
+        decorated_fn = cachetools_async.cachedmethod(mock_resolver)(
+            ExampleClass.identity
+        )
 
         decorated_fn.cache_clear("example")
 
@@ -164,16 +171,30 @@ class TestCachedmethodDict:
 
 class TestCachedNone:
     async def test_params_are_passed_through(self):
-        decorated_fn = cachetools_async.cachedmethod(lambda _: None)(ExampleClass.identity)
+        decorated_fn = cachetools_async.cachedmethod(lambda _: None)(
+            ExampleClass.identity
+        )
 
         example = ExampleClass()
 
-        assert await decorated_fn(example, 0) == (example, 0,)
-        assert await decorated_fn(example, "foo") == (example, "foo",)
-        assert await decorated_fn(example, "foo", bar="baz") == (example, "foo", ("bar", "baz"))
+        assert await decorated_fn(example, 0) == (
+            example,
+            0,
+        )
+        assert await decorated_fn(example, "foo") == (
+            example,
+            "foo",
+        )
+        assert await decorated_fn(example, "foo", bar="baz") == (
+            example,
+            "foo",
+            ("bar", "baz"),
+        )
 
     async def test_cache_clear(self):
-        decorated_fn = cachetools_async.cachedmethod(lambda _: None)(ExampleClass.identity)
+        decorated_fn = cachetools_async.cachedmethod(lambda _: None)(
+            ExampleClass.identity
+        )
 
         assert hasattr(decorated_fn, "cache_clear")
         assert callable(decorated_fn.cache_clear)
@@ -182,7 +203,9 @@ class TestCachedNone:
         decorated_fn.cache_clear(ExampleClass())
 
     async def test_extra_properties_are_set(self):
-        decorated_fn = cachetools_async.cachedmethod(lambda _: None)(ExampleClass.identity)
+        decorated_fn = cachetools_async.cachedmethod(lambda _: None)(
+            ExampleClass.identity
+        )
 
         assert hasattr(decorated_fn, "cache")
         assert hasattr(decorated_fn, "cache_key")
