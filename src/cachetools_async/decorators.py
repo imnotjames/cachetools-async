@@ -12,10 +12,6 @@ PossibleCache = Union[Cache, Mapping, None]
 
 
 def apply_task_result_to_future(task: Task, future: Future):
-    if not task.done():
-        # We aren't done yet, so we can't apply the result
-        return
-
     if task.cancelled():
         future.cancel()
         return
