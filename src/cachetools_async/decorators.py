@@ -7,6 +7,8 @@ from typing import (
     MutableMapping,
     Optional,
     ContextManager,
+    Protocol,
+    TYPE_CHECKING,
 )
 from inspect import iscoroutinefunction
 from asyncio import get_event_loop, shield, Future, Task
@@ -15,6 +17,11 @@ from cachetools.keys import hashkey, methodkey
 
 
 _KT = TypeVar("_KT")
+_T = TypeVar("_T")
+
+
+class IdentityFunction(Protocol):
+    def __call__(self, x: _T, /) -> _T: ...
 
 
 def apply_task_result_to_future(task: Task, future: Future):
@@ -35,7 +42,7 @@ def cached(
     key: Callable[..., _KT] = hashkey,
     lock: Optional[ContextManager[Any]] = None,
     info: bool = False,
-):
+) -> IdentityFunction:
     """
     Decorator to wrap a function with a memoizing callable that saves
     results in a cache.
@@ -98,14 +105,14 @@ def cached(
 
         return update_wrapper(wrapper, fn)
 
-    return decorator
+    return decorator  # type: ignore
 
 
 def cachedmethod(
     cache: Callable[[Any], Optional[MutableMapping[_KT, Future]]],
     key: Callable[[Any], _KT] = methodkey,
     lock: Optional[Callable[[Any], ContextManager[Any]]] = None,
-):
+) -> IdentityFunction:
     """
     Decorator to wrap a class or instance method with a memoizing
     callable that saves results in a cache.
@@ -169,4 +176,4 @@ def cachedmethod(
 
         return update_wrapper(wrapper, method)
 
-    return decorator
+    return decorator  # type: ignore
