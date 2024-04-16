@@ -152,7 +152,8 @@ class TestCachedmethodDict:
         await decorated_fn("foo")
         await decorated_fn("foo")
 
-        decorated_fn.cache_clear("foo")
+        cache_clear = getattr(decorated_fn, "cache_clear")
+        cache_clear("foo")
 
         actual = await decorated_fn("foo")
 
@@ -165,7 +166,7 @@ class TestCachedmethodDict:
             ExampleClass.identity
         )
 
-        decorated_fn.cache_clear("example")
+        getattr(decorated_fn, "cache_clear")("example")
 
         mock_resolver.assert_called_with("example")
 
@@ -198,10 +199,13 @@ class TestCachedNone:
         )
 
         assert hasattr(decorated_fn, "cache_clear")
-        assert callable(decorated_fn.cache_clear)
+
+        cache_clear = getattr(decorated_fn, "cache_clear")
+
+        assert callable(cache_clear)
 
         # It's a no-op but call it anyway
-        decorated_fn.cache_clear(ExampleClass())
+        cache_clear(ExampleClass())
 
     async def test_extra_properties_are_set(self):
         decorated_fn = cachetools_async.cachedmethod(lambda _: None)(

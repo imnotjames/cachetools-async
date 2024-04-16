@@ -134,7 +134,7 @@ class TestCachedDict:
         await decorated_fn("foo")
         await decorated_fn("foo")
 
-        decorated_fn.cache_clear()
+        getattr(decorated_fn, "cache_clear")()
 
         actual = await decorated_fn("foo")
 
@@ -155,10 +155,11 @@ class TestCachedNone:
         decorated_fn = cachetools_async.cached(None)(identity)
 
         assert hasattr(decorated_fn, "cache_clear")
-        assert callable(decorated_fn.cache_clear)
+        cache_clear = getattr(decorated_fn, "cache_clear")
+        assert callable(cache_clear)
 
         # It's a no-op but call it anyway
-        decorated_fn.cache_clear()
+        cache_clear()
 
     async def test_extra_properties_are_set(self):
         decorated_fn = cachetools_async.cached(None)(identity)
