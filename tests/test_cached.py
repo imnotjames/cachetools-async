@@ -30,13 +30,13 @@ def test_cached_raises_type_error_without_coroutine():
     decorator = cachetools_async.cached(None)
 
     with pytest.raises(TypeError, match="Expected Coroutine"):
-        decorator(simple)
+        decorator(simple)  # type: ignore
 
     with pytest.raises(TypeError, match="Expected Coroutine"):
-        decorator(10)
+        decorator(10)  # type: ignore
 
     with pytest.raises(TypeError, match="Expected Coroutine"):
-        decorator({})
+        decorator({})  # type: ignore
 
 
 async def test_cached_full_cache_never_caches():
