@@ -59,10 +59,14 @@ def cached(
             raise TypeError("Expected Coroutine function, got {}".format(fn))
 
         async def wrapper(*args, **kwargs):
+            if cache is None:
+                # No cache available - run the method as normal
+                return await fn(*args, **kwargs)
+
             k = key(*args, **kwargs)
 
             try:
-                future = cache[k] if cache is not None else None
+                future = cache[k]
             except KeyError:
                 # key not found
                 future = None
@@ -86,8 +90,7 @@ def cached(
             task.add_done_callback(lambda t: apply_task_result_to_future(t, f))
 
             try:
-                if cache is not None:
-                    cache[k] = f
+                cache[k] = f
             except ValueError:
                 # value too large
                 pass
