@@ -20,7 +20,7 @@ def test_cached_fails_unimplemented_features():
             pass
 
     with pytest.raises(NotImplementedError, match="does not support `lock`"):
-        cachetools_async.cached(None, lock=FakeLock)
+        cachetools_async.cached(None, lock=FakeLock())
 
 
 def test_cached_raises_type_error_without_coroutine():
