@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "cachetools-async"
-version = "0.0.1"
+version = "0.0.2"
 description = "Provides decorators that are inspired by and work closely with cachetools' for caching asyncio functions and methods."
 authors = ["James Ward <james@notjam.es>"]
 license = "MIT"
