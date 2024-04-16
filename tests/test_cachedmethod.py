@@ -12,6 +12,7 @@ class ExampleClass:
 
     async def cancel_self(self):
         task = asyncio.current_task()
+        assert task is not None
         task.cancel()
         return self
 

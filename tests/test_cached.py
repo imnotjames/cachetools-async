@@ -85,6 +85,7 @@ class TestCachedDict:
     async def test_cancelled_calls_are_propagated(self):
         async def func():
             task = asyncio.current_task()
+            assert task is not None
             task.cancel()
 
         decorated_fn = cachetools_async.cached({})(func)
