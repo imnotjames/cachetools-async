@@ -22,8 +22,9 @@ def apply_task_result_to_future(task: Task, future: Future):
         future.cancel()
         return
 
-    if task.exception() is not None:
-        future.set_exception(task.exception())
+    exception = task.exception()
+    if exception is not None:
+        future.set_exception(exception)
         return
 
     future.set_result(task.result())
@@ -50,58 +51,50 @@ def cached(
         if not iscoroutinefunction(fn):
             raise TypeError("Expected Coroutine function, got {}".format(fn))
 
-        if cache is None:
+        async def wrapper(*args, **kwargs):
+            k = key(*args, **kwargs)
 
-            async def wrapper(*args, **kwargs):
-                return await fn(*args, **kwargs)
+            try:
+                future = cache[k] if cache is not None else None
+            except KeyError:
+                # key not found
+                future = None
 
-            def cache_clear():
-                pass
+            if future is not None:
+                if not future.done():
+                    return await shield(future)
 
-        else:
+                if future.exception() is None:
+                    return future.result()
 
-            async def wrapper(*args, **kwargs):
-                k = key(*args, **kwargs)
+            coro = fn(*args, **kwargs)
 
-                try:
-                    future = cache[k]
-                except KeyError:
-                    # key not found
-                    future = None
+            loop = get_event_loop()
 
-                if future is not None:
-                    if not future.done():
-                        return await shield(future)
+            # Crete a task that tracks the coroutine execution
+            task = loop.create_task(coro)
 
-                    if future.exception() is None:
-                        return future.result()
+            # Create a future and then tie the future and task together
+            f = loop.create_future()
+            task.add_done_callback(lambda t: apply_task_result_to_future(t, f))
 
-                coro = fn(*args, **kwargs)
-
-                loop = get_event_loop()
-
-                # Crete a task that tracks the coroutine execution
-                task = loop.create_task(coro)
-
-                # Create a future and then tie the future and task together
-                f = loop.create_future()
-                task.add_done_callback(lambda t: apply_task_result_to_future(t, f))
-
-                try:
+            try:
+                if cache is not None:
                     cache[k] = f
-                except ValueError:
-                    # value too large
-                    pass
-                return await shield(f)
+            except ValueError:
+                # value too large
+                pass
+            return await shield(f)
 
-            def cache_clear():
+        def cache_clear():
+            if cache is not None:
                 cache.clear()
 
-        wrapper.cache = cache
-        wrapper.cache_key = key
-        wrapper.cache_lock = None
-        wrapper.cache_clear = cache_clear
-        wrapper.cache_info = None
+        setattr(wrapper, "cache", cache)
+        setattr(wrapper, "cache_key", key)
+        setattr(wrapper, "cache_lock", None)
+        setattr(wrapper, "cache_clear", cache_clear)
+        setattr(wrapper, "cache_info", None)
 
         return update_wrapper(wrapper, fn)
 
@@ -164,15 +157,15 @@ def cachedmethod(
                 pass
             return await shield(future)
 
-        def clear(self):
+        def cache_clear(self):
             c = cache(self)
             if c is not None:
                 c.clear()
 
-        wrapper.cache = cache
-        wrapper.cache_key = key
-        wrapper.cache_lock = None
-        wrapper.cache_clear = clear
+        setattr(wrapper, "cache", cache)
+        setattr(wrapper, "cache_key", key)
+        setattr(wrapper, "cache_lock", None)
+        setattr(wrapper, "cache_clear", cache_clear)
 
         return update_wrapper(wrapper, method)
 
