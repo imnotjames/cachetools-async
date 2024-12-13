@@ -44,6 +44,13 @@ jobs:
         with:
           ref: release-please--branches--main
           fetch-depth: 2
+      - name: Get token from Github App
+        uses: actions/create-github-app-token@v1
+        id: generate-token
+        with:
+          app-id: ${{ vars.RELEASE_PLEASE_APP_ID }}
+          private-key: ${{ secrets.RELEASE_PLEASE_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
       - name: Install uv
         uses: astral-sh/setup-uv@v3
         with:
@@ -52,6 +59,8 @@ jobs:
         run: uv lock
       - name: Merging changes with last commit
         uses: swinton/commit@v2.0.0
+        env:
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
         with:
           commit-message: 'chore: bump uv.lock'
           files: 'uv.lock'
