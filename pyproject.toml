@@ -1,6 +1,6 @@
 [project]
 name = "cachetools-async"
-version = "0.0.3"
+version = "0.0.4"
 description = "Provides decorators that are inspired by and work closely with cachetools' for caching asyncio functions and methods."
 authors = [
     { name = "James Ward", email = "james@notjam.es" }
