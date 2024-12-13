@@ -107,7 +107,7 @@ def cached(
 
 def cachedmethod(
     cache: Callable[[Any], Optional[MutableMapping[_KT, Future]]],
-    key: Callable[[Any], _KT] = methodkey,
+    key: Callable[..., _KT] = methodkey,
     lock: Optional[Callable[[Any], ContextManager[Any]]] = None,
 ) -> IdentityFunction:
     """Wrap a class or instance method to save results in a cache."""
