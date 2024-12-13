@@ -51,12 +51,6 @@ jobs:
       - name: Update uv.lock
         run: uv lock
       - name: Merging changes with last commit
-        run: |
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git config user.name "github-actions[bot]"
-
-          if [[ -n "$(git status --porcelain)" ]]; then
-            git add uv.lock
-            git commit --no-edit -m "chore: bump uv.lock"
-            git push
-          fi
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: 'chore: bump uv.lock'
