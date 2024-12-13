@@ -1,20 +1,28 @@
-[tool.poetry]
+[project]
 name = "cachetools-async"
 version = "0.0.3"
 description = "Provides decorators that are inspired by and work closely with cachetools' for caching asyncio functions and methods."
-authors = ["James Ward <james@notjam.es>"]
+authors = [
+    { name = "James Ward", email = "james@notjam.es" }
+]
 license = "MIT"
 readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "cachetools>=5",
+]
 
-[tool.poetry.dependencies]
-python = "^3.9"
-cachetools = "^5"
+[project.urls]
+Repository = "https://github.com/imnotjames/cachetools-async.git"
+Issues = "https://github.com/imnotjames/cachetools-async/issues"
 
-[tool.poetry.group.dev.dependencies]
-pytest = "^8.1.1"
-pytest-asyncio = "^0.23.6"
-black = "^24.3.0"
-pytest-cov = "^5.0.0"
+[dependency-groups]
+dev = [
+    "pytest~=8.1.1",
+    "pytest-asyncio~=0.23.6",
+    "black~=24.3.0",
+    "pytest-cov~=5.0.0",
+]
 
 [tool.pytest.ini_options]
 xfail_strict = true
@@ -22,5 +30,5 @@ addopts = "-p no:warnings"
 asyncio_mode = "auto"
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"

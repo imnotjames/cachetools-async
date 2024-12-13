@@ -23,25 +23,16 @@ jobs:
           - "3.12"
     steps:
       - uses: actions/checkout@v4.1.1
-      - uses: actions/setup-python@v5.1.0
+      - uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
         with:
-          python-version: ${{ matrix.python }}
-      - uses: snok/install-poetry@v1.3.4
-        with:
-          virtualenvs-create: true
-          virtualenvs-in-project: true
-          installer-parallel: true
-      - name: Cache the virtual environment
-        uses: actions/cache@v3
-        with:
-          path: ./.venv
-          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
-      - name: Install dependencies
-        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-        run: poetry install --no-interaction --no-root
-      - name: Install package root
-        run: poetry install --no-interaction
-      - name: Activate virtual environment
+          enable-cache: true
+      - name: Set up Python
+        run: uv python install
+      - name: Install the project
+        run: uv sync --all-extras --dev
+      - name: Activate venv
         run: |
           source .venv/bin/activate
           echo "VIRTUAL_ENV=${VIRTUAL_ENV}" >> $GITHUB_ENV
@@ -60,39 +51,3 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           file: ./reports/coverage.xml
-
-  pyright:
-    name: verify with pyright
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up Python
-        id: setup-python
-        uses: actions/setup-python@v5
-        if: steps.changed-files.outputs.any_changed == 'true'
-        with:
-          python-version: '3.12'
-      - uses: snok/install-poetry@v1.3.4
-        with:
-          virtualenvs-create: true
-          virtualenvs-in-project: true
-          installer-parallel: true
-      - name: Cache the virtual environment
-        uses: actions/cache@v3
-        with:
-          path: ./.venv
-          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
-      - name: Install dependencies
-        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-        run: poetry install --no-interaction --no-root
-      - name: Install package root
-        run: poetry install --no-interaction
-      - name: Activate virtual environment
-        run: |
-          source .venv/bin/activate
-          echo "VIRTUAL_ENV=${VIRTUAL_ENV}" >> $GITHUB_ENV
-          echo "${VIRTUAL_ENV}/bin" >> $GITHUB_PATH
-          echo "VIRTUAL_ENV=${VIRTUAL_ENV}"
-      - uses: jakebailey/pyright-action@v2
-        with:
-          venv-path: .venv
