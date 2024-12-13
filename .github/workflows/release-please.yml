@@ -8,9 +8,6 @@ on:
 jobs:
   release-please:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
     outputs:
       release_created: ${{ steps.release.outputs.releases_created }}
       pr_created: ${{ steps.release.outputs.prs_created }}
@@ -35,9 +32,6 @@ jobs:
     name: Update uv lockfile
     runs-on: ubuntu-latest
     needs: release-please
-    permissions:
-      contents: write
-      pull-requests: write
     if: ${{ needs.release-please.outputs.pr_created == 'true' }}
     steps:
       - uses: actions/checkout@v4
