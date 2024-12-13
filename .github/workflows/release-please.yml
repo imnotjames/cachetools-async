@@ -51,6 +51,7 @@ jobs:
       - name: Update uv.lock
         run: uv lock
       - name: Merging changes with last commit
-        uses: stefanzweifel/git-auto-commit-action@v5
+        uses: swinton/commit@v2.0.0
         with:
-          commit_message: 'chore: bump uv.lock'
+          commit-message: 'chore: bump uv.lock'
+          files: 'uv.lock'
