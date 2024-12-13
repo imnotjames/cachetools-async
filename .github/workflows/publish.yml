@@ -1,0 +1,27 @@
+name: Publish Package
+
+
+on:
+  release:
+    types:
+      - "published"
+
+jobs:
+  pypi-publish:
+    name: publish release to PyPI
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+      - name: Build
+        run: uv build
+      - name: Publish
+        run: uv publish

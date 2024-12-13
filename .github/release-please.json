@@ -1,0 +1,11 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "packages": {
+    ".": {
+      "release-type": "python",
+      "include-component-in-tag": false,
+      "pull-request-header": "A Release PR has been automatically generated based on activity.\n\n",
+      "pull-request-footer": "Merge this pull request to cut the next release."
+    }
+  }
+}
