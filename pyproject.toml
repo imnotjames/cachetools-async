@@ -20,8 +20,9 @@ Issues = "https://github.com/imnotjames/cachetools-async/issues"
 dev = [
     "pytest~=8.1.1",
     "pytest-asyncio~=0.23.6",
-    "black~=24.3.0",
     "pytest-cov~=5.0.0",
+    "pyright>=1.1.390",
+    "ruff>=0.8.2",
 ]
 
 [tool.pytest.ini_options]
@@ -32,3 +33,30 @@ asyncio_mode = "auto"
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[tool.ruff.lint]
+preview = true
+select = [
+    "E4",       # Import rules
+    "E7",       # Statement rules
+    "E9",       # Runtime rules
+    "F",        # All Pyflakes rules
+    "B006",     # mutable-argument-default: Do not use mutable data structures for argument defaults
+    "B008",     # function-call-in-default-argument: Do not perform function call {name} in argument defaults;
+    "PIE790",   # unnecessary-placeholder: Unnecessary pass statement
+    "S303",     # suspicious-insecure-hash-usage: Use of insecure MD2, MD4, MD5, or SHA1 hash function
+    "S324",     # hashlib-insecure-hash-function: Probable use of insecure hash functions in {library}: {string}
+    "I",        # All isort rules
+    "D",        # All pydocstyle rules
+]
+ignore = [
+    "D1",       # Don't enforce existence of docstrings
+]
+extend-unsafe-fixes = ["F401"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.isort]
+known-first-party = ["tests"]
+section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]

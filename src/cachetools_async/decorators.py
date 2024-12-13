@@ -1,20 +1,18 @@
+from asyncio import Future, Task, get_event_loop, shield
 from functools import update_wrapper
+from inspect import iscoroutinefunction
 from typing import (
-    TypeVar,
-    Callable,
-    Awaitable,
     Any,
+    Awaitable,
+    Callable,
+    ContextManager,
     MutableMapping,
     Optional,
-    ContextManager,
     Protocol,
-    TYPE_CHECKING,
+    TypeVar,
 )
-from inspect import iscoroutinefunction
-from asyncio import get_event_loop, shield, Future, Task
 
 from cachetools.keys import hashkey, methodkey
-
 
 _KT = TypeVar("_KT")
 _T = TypeVar("_T")
@@ -43,11 +41,7 @@ def cached(
     lock: Optional[ContextManager[Any]] = None,
     info: bool = False,
 ) -> IdentityFunction:
-    """
-    Decorator to wrap a function with a memoizing callable that saves
-    results in a cache.
-    """
-
+    """Wrap a function to save results in a cache."""
     if info:
         raise NotImplementedError("cachetools_async does not support `info`")
 
@@ -116,11 +110,7 @@ def cachedmethod(
     key: Callable[[Any], _KT] = methodkey,
     lock: Optional[Callable[[Any], ContextManager[Any]]] = None,
 ) -> IdentityFunction:
-    """
-    Decorator to wrap a class or instance method with a memoizing
-    callable that saves results in a cache.
-    """
-
+    """Wrap a class or instance method to save results in a cache."""
     if lock is not None:
         raise NotImplementedError("cachetools_async does not support `lock`")
 

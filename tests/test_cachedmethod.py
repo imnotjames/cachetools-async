@@ -2,8 +2,9 @@ import asyncio
 import contextlib
 from unittest.mock import AsyncMock, MagicMock, call
 
-import cachetools_async
 import pytest
+
+import cachetools_async
 
 
 class ExampleClass:
