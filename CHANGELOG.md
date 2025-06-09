@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.5](https://github.com/imnotjames/cachetools-async/compare/v0.0.4...v0.0.5) (2025-06-09)
+
+
+### Miscellaneous Chores
+
+* release 0.0.5 ([42e134d](https://github.com/imnotjames/cachetools-async/commit/42e134dac6168805f229d4ff1fef1e5af1676388))
+
 ## [0.0.4](https://github.com/imnotjames/cachetools-async/compare/v0.0.3...v0.0.4) (2024-12-13)
 
 
