@@ -1,5 +1,6 @@
 import asyncio
 import contextlib
+import contextvars
 from unittest.mock import AsyncMock, MagicMock, call
 
 import pytest
