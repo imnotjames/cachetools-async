@@ -82,7 +82,7 @@ class TestCachedDict:
 
         decorated_fn = cachetools_async.cached({})(example)
 
-        actual = await decorated_fn(var)
+        actual = await decorated_fn()
         assert actual == "example"
         assert var.get() == "test"
     
