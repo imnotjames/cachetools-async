@@ -68,6 +68,14 @@ class TestCachedDict:
         assert await decorated_fn("foo") == ("foo",)
         assert await decorated_fn("foo", bar="baz") == ("foo", ("bar", "baz"))
 
+    async def test_context_var_passed(self):
+        var = contextvars.ContextVar('var')
+        var.set("test")
+        async def read_contextvar():
+            return var.get()
+        decorated_fn = cachetools_async.cached({})(read_contextvar)
+        assert decorated_fn() == "test"
+    
     async def test_multiple_calls(self):
         mock = AsyncMock()
 
