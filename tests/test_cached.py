@@ -126,6 +126,28 @@ class TestCachedDict:
 
         assert await decorated_fn() == "example"
 
+    async def test_failed_futures_are_evicted_from_cache(self):
+        cache = {}
+        mock = AsyncMock()
+
+        mock.side_effect = [
+            TypeError(),
+            "example",
+        ]
+
+        decorated_fn = cachetools_async.cached(cache)(mock)
+
+        with pytest.raises(TypeError):
+            await decorated_fn("foo")
+
+        # The failed future should have been evicted on the next call
+        await decorated_fn("foo")
+        assert len(cache) == 1
+
+        # The successful result should now be cached
+        future = cache[list(cache.keys())[0]]
+        assert future.result() == "example"
+
     async def test_cache_clear_evicts_everything(self):
         mock = AsyncMock()
 

@@ -1,4 +1,4 @@
-from asyncio import Future, Task, get_event_loop, shield
+from asyncio import Future, Task, get_running_loop, shield
 from functools import update_wrapper
 from inspect import iscoroutinefunction
 from typing import (
@@ -72,11 +72,17 @@ def cached(
                 if future.exception() is None:
                     return future.result()
 
+                # Evict failed futures so they don't occupy cache slots
+                try:
+                    del cache[k]
+                except KeyError:
+                    pass
+
             coro = fn(*args, **kwargs)
 
-            loop = get_event_loop()
+            loop = get_running_loop()
 
-            # Crete a task that tracks the coroutine execution
+            # Create a task that tracks the coroutine execution
             task = loop.create_task(coro)
 
             # Create a future and then tie the future and task together
@@ -139,11 +145,17 @@ def cachedmethod(
                 if future.exception() is None:
                     return future.result()
 
+                # Evict failed futures so they don't occupy cache slots
+                try:
+                    del c[k]
+                except KeyError:
+                    pass
+
             coro = method(self, *args, **kwargs)
 
-            loop = get_event_loop()
+            loop = get_running_loop()
 
-            # Crete a task that tracks the coroutine execution
+            # Create a task that tracks the coroutine execution
             task = loop.create_task(coro)
 
             # Create a future and then tie the future and task together
