@@ -72,6 +72,12 @@ def cached(
                 if future.exception() is None:
                     return future.result()
 
+                # Evict failed futures so they don't occupy cache slots
+                try:
+                    del cache[k]
+                except KeyError:
+                    pass
+
             coro = fn(*args, **kwargs)
 
             loop = get_event_loop()
@@ -138,6 +144,12 @@ def cachedmethod(
 
                 if future.exception() is None:
                     return future.result()
+
+                # Evict failed futures so they don't occupy cache slots
+                try:
+                    del c[k]
+                except KeyError:
+                    pass
 
             coro = method(self, *args, **kwargs)
 
