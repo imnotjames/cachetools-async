@@ -76,7 +76,7 @@ def cached(
 
             loop = get_event_loop()
 
-            # Crete a task that tracks the coroutine execution
+            # Create a task that tracks the coroutine execution
             task = loop.create_task(coro)
 
             # Create a future and then tie the future and task together
@@ -143,7 +143,7 @@ def cachedmethod(
 
             loop = get_event_loop()
 
-            # Crete a task that tracks the coroutine execution
+            # Create a task that tracks the coroutine execution
             task = loop.create_task(coro)
 
             # Create a future and then tie the future and task together
