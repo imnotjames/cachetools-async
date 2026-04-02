@@ -144,6 +144,30 @@ class TestCachedmethodDict:
 
         assert await decorated_fn(mock) == "example"
 
+    async def test_failed_futures_are_evicted_from_cache(self):
+        cache = {}
+        mock_resolver = MagicMock()
+        mock_resolver.return_value = cache
+
+        mock = AsyncMock()
+        mock.func.side_effect = [
+            TypeError(),
+            "example",
+        ]
+
+        decorated_fn = cachetools_async.cachedmethod(mock_resolver)(mock.func)
+
+        with pytest.raises(TypeError):
+            await decorated_fn(mock, "foo")
+
+        # The failed future should have been evicted on the next call
+        await decorated_fn(mock, "foo")
+        assert len(cache) == 1
+
+        # The successful result should now be cached
+        future = cache[list(cache.keys())[0]]
+        assert future.result() == "example"
+
     async def test_cache_clear_evicts_everything(self, mock_resolver):
         mock = AsyncMock()
         mock.return_value = "bar"
