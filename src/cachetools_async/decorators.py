@@ -10,9 +10,13 @@ from typing import (
     Optional,
     Protocol,
     TypeVar,
+    TYPE_CHECKING
 )
 
 from cachetools.keys import hashkey, methodkey
+
+if TYPE_CHECKING:
+    from threading import Condition
 
 _KT = TypeVar("_KT")
 _T = TypeVar("_T")
@@ -39,6 +43,7 @@ def cached(
     cache: Optional[MutableMapping[_KT, Future]],
     key: Callable[..., _KT] = hashkey,
     lock: Optional[ContextManager[Any]] = None,
+    cond: Optional[Condition] = None,
     info: bool = False,
 ) -> IdentityFunction:
     """Wrap a function to save results in a cache."""
@@ -47,6 +52,9 @@ def cached(
 
     if lock is not None:
         raise NotImplementedError("cachetools_async does not support `lock`")
+
+    if cond is not None:
+        raise NotImplementedError("cachetools_async does not support `cond`")
 
     def decorator(fn: Callable[..., Awaitable]):
         if not iscoroutinefunction(fn):
@@ -109,10 +117,14 @@ def cachedmethod(
     cache: Callable[[Any], Optional[MutableMapping[_KT, Future]]],
     key: Callable[..., _KT] = methodkey,
     lock: Optional[Callable[[Any], ContextManager[Any]]] = None,
+    cond: Optional[Condition] = None
 ) -> IdentityFunction:
     """Wrap a class or instance method to save results in a cache."""
     if lock is not None:
         raise NotImplementedError("cachetools_async does not support `lock`")
+
+    if cond is not None:
+        raise NotImplementedError("cachetools_async does not support `cond`")
 
     def decorator(method: Callable[..., Awaitable]):
         if not iscoroutinefunction(method):
