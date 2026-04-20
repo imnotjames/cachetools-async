@@ -1,5 +1,6 @@
 import asyncio
 import contextlib
+import contextvars
 from unittest.mock import AsyncMock, MagicMock, call
 
 import pytest
@@ -68,6 +69,23 @@ class TestCachedDict:
         assert await decorated_fn("foo") == ("foo",)
         assert await decorated_fn("foo", bar="baz") == ("foo", ("bar", "baz"))
 
+    async def test_context_var_passed(self):
+        var = contextvars.ContextVar("var")
+        var.set("test")
+
+        def read_contextvar():
+            return var.get()
+
+        async def example():
+            var.set("example")
+            return read_contextvar()
+
+        decorated_fn = cachetools_async.cached({})(example)
+
+        actual = await decorated_fn()
+        assert actual == "example"
+        assert var.get() == "test"
+    
     async def test_multiple_calls(self):
         mock = AsyncMock()
 
